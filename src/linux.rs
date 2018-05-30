@@ -1,7 +1,7 @@
 use std::ffi::CString;
 
 mod ffi {
-    use std::os::raw::{c_char, c_long, c_int, c_void};
+    use std::os::raw::{c_char, c_long, c_int, c_void, c_double};
 
     pub const NEWRELIC_AUTOSCOPE: c_long = 1;
     pub const NEWRELIC_ROOT_SEGMENT: c_long = 0;
@@ -16,6 +16,8 @@ mod ffi {
         pub fn newrelic_segment_generic_begin(transaction_id: c_long, parent_segment_id: c_long, name: *const c_char) -> c_long;
         pub fn newrelic_segment_external_begin(transaction_id: c_long, parent_segment_id: c_long, host: *const c_char, name: *const c_char) -> c_long;
         pub fn newrelic_segment_end(transaction_id: c_long, segment_id: c_long) -> c_int;
+        pub fn newrelic_transaction_add_attribute(transaction_id: c_long, name: *const c_char, value: *const c_char) -> c_int;
+        pub fn newrelic_record_metric(name: *const c_char, value: c_double) -> c_int;
     }
 }
 
@@ -111,6 +113,36 @@ pub fn segment_end(transaction_id: i64, segment_id: i64) -> Result<(), ()> {
 
     match rc {
         0 => Ok(()),
+        _ => Err(()),
+    }
+}
+
+/// Set a transaction attribute. Up to the first 50 attributes added are sent with each transaction.
+pub fn transaction_add_attribute(transaction_id: i64, name: &str, value: &str) -> Result<i64, ()> {
+    let name = CString::new(name).unwrap();
+    let value = CString::new(value).unwrap();
+    let rc = unsafe {
+        ffi::newrelic_transaction_add_attribute(transaction_id, name.as_ptr(), value.as_ptr())
+    };
+
+    match rc {
+        0 => Ok(0),
+        _ => Err(()),
+    }
+}
+
+/// Record a custom metric.
+/// name  the name of the metric
+/// value   the value of the metric
+pub fn record_metric(name: &str, value: f64) -> Result<i64, ()> {
+    let name = CString::new(name).unwrap();
+
+    let rc = unsafe {
+        ffi::newrelic_record_metric(name.as_ptr(), value)
+    };
+
+    match rc {
+        0 => Ok(0),
         _ => Err(()),
     }
 }

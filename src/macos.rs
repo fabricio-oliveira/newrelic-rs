@@ -41,3 +41,11 @@ pub fn segment_external_begin(transaction_id: i64, host: &str, name: &str) -> Re
 pub fn segment_end(transaction_id: i64, segment_id: i64) -> Result<(), ()> {
     Ok(())
 }
+
+pub fn transaction_add_attribute(transaction_id: i64, name: &str, value: &str) -> Result<i64, ()> {
+    Ok(0)
+}
+
+pub fn record_metric(name: &str, value: f64) -> Result<i64, ()> {
+    Ok(0)
+}

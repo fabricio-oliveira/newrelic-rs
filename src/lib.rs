@@ -13,6 +13,8 @@ pub use self::linux::{
     segment_generic_begin,
     segment_external_begin,
     segment_end,
+    transaction_add_attribute,
+    record_metric,
 };
 
 #[cfg(not(target_os = "linux"))]
@@ -27,6 +29,8 @@ pub use self::macos::{
     segment_generic_begin,
     segment_external_begin,
     segment_end,
+    transaction_add_attribute,
+    record_metric,
 };
 
 pub fn transaction_with<F, T>(f: F, name: Option<&str>) -> T where F: Fn(Option<i64>) -> T {
